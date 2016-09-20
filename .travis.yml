@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: FL6dfNc2d6znpMT3vCblc2dac7unYUTfjVe/sSxtEgJXgA3OOZ5jtPjipCcmkVCPap4dI6BXTozfRf9pv7dQtF96flqrnKUxfgNy0FBtDxbkjOOJyE1siDYuPii4PmDMSFEdT4cnk1igOj1EzoAH8NUqOgU6zYG9wUL5fNeF+Jt9RF+SNtu9Z5dTPOl6o86fnQRta6e41Q9Th7KJ89KjpVGvR5Hmtpn1N1NyKr+GHArHKA3cUj2pjftY3yM8PfW4NWPJ/dLRHByqKBIf+I1+3H1IB5wrjHn2MsTBX2RVP3d/DK0cHPNaUTt8ogXqw5PA9r3HcSe90ur/VcqCTVRCGavKu3qH7yUQAWTzS71mTRRIVYlJA6BtJmCTmnmASPIO+5i7M/siSIDASYbH4pgJ91ZeEumG8RIRrYVzDBNnj4Cy8TR3uqyghwyPr3pzLB0UaBUQcn16Y6iODwkOWaJxs+szQT/2a+4jJOdo+4w0Z4fWVvYAJCM05TCY5k2P8+cwzVHwx4upfyDOjUzYE+7amxtd6s0prkfNvCkogXHHGyYN1YqdWpCs9ZR50/WRlvtenlU7m+c13KscJFWXRei4XNvI049e5yZv9ropFEIwgJ/s/7HjV49rOVZFH3D/IAk9mOynTkKc6Y0y7o9BOoC7eWnMDoHb4Z7DBY0Bv4CDcuU=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/God-s-Good-Man-A-Simple-Love-Story_4653
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
